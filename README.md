@@ -26,7 +26,7 @@ Each skill folder contains a `SKILL.md` file directly under the repository root,
 | Skill | Description |
 |-------|-------------|
 | [brave-search](brave-search/SKILL.md) | Web search and content extraction via Brave Search API |
-| [browser-tools](browser-tools/SKILL.md) | Interactive browser automation via Chrome DevTools Protocol |
+| [browser-tools](browser-tools/README.md) | Interactive browser inspection, diagnostics, and Playwright locator support via Chrome DevTools Protocol |
 | [youtube-transcript](youtube-transcript/SKILL.md) | Fetch transcripts from YouTube videos |
 
 ## Setup

@@ -9,6 +9,21 @@ Chrome DevTools Protocol tools for agent-assisted web automation. These tools co
 
 The CLI tools are implemented with Puppeteer/CDP as a lightweight browser control layer. Locator recommendations are generated in Playwright style because they are meant to be copied into Playwright tests. `browser-action.js` supports a small Playwright-inspired selector syntax for quick validation; it is not the full Playwright locator engine.
 
+## Design Principle
+
+This skill should not try to become a full browser automation framework.
+
+It should provide four things:
+
+1. A compact, structured model of the current page.
+2. A factual recording of what happened during manual testing.
+3. Playwright locator and assertion intelligence.
+4. A bridge between UI behavior and browser-observed API/network evidence.
+
+The skill should prefer structured JSON artifacts over long prose. The agent can summarize those artifacts, but the tools should capture facts.
+
+The skill should not replace Playwright, Bruno, curl, or a full test framework. It should help the agent inspect, diagnose, and explain what is happening in the browser, then turn that evidence into better manual testing notes or Playwright test code.
+
 ## Setup
 
 Run once before first use:
