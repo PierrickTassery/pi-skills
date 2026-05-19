@@ -7,6 +7,8 @@ description: Interactive browser automation via Chrome DevTools Protocol. Use wh
 
 Chrome DevTools Protocol tools for agent-assisted web automation. These tools connect to Chrome running on `:9222` with remote debugging enabled.
 
+The CLI tools are implemented with Puppeteer/CDP as a lightweight browser control layer. Locator recommendations are generated in Playwright style because they are meant to be copied into Playwright tests. `browser-action.js` supports a small Playwright-inspired selector syntax for quick validation; it is not the full Playwright locator engine.
+
 ## Setup
 
 Run once before first use:
