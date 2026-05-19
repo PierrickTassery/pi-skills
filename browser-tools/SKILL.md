@@ -1,6 +1,6 @@
 ---
 name: browser-tools
-description: Interactive browser automation via Chrome DevTools Protocol. Use when you need to interact with web pages, test frontends, or when user interaction with a visible browser is required.
+description: Interactive browser automation via Chrome DevTools Protocol. Use when you need to interact with web pages, test frontends, inspect DOM/accessibility, debug console/network issues, or validate Playwright locators.
 ---
 
 # Browser Tools
@@ -43,6 +43,79 @@ Navigate to URLs. Use `--new` flag to open in a new tab instead of reusing curre
 
 Execute JavaScript in the active tab. Code runs in async context. Use this to extract data, inspect page state, or perform DOM operations programmatically.
 
+## Suggest Playwright Locators
+
+```bash
+{baseDir}/browser-locators.js
+{baseDir}/browser-locators.js --role button
+{baseDir}/browser-locators.js --text "Save" --json
+```
+
+Inspect the active page and suggest Playwright-style locators. Prefer these user-facing locators over CSS selectors:
+
+1. `getByRole()`
+2. `getByLabel()`
+3. `getByPlaceholder()`
+4. `getByText()`
+5. CSS selectors only as fallback
+
+Example output can be converted directly into Playwright test code:
+
+```typescript
+await page.getByRole('searchbox', { name: 'Search' }).fill('query');
+await page.getByRole('button', { name: 'Search' }).click();
+```
+
+The `action` field returned by `browser-locators.js` can be used with `browser-action.js`.
+
+## Run and Diagnose an Action
+
+```bash
+{baseDir}/browser-action.js \
+  --fill "role=searchbox[name='Search']::playwright" \
+  --click "role=button[name='Go']" \
+  --wait-url "playwright"
+```
+
+Run a simple browser action and collect diagnostics around it. Supported selectors:
+
+```text
+role=button[name='Save']
+label='Email'
+placeholder='Search'
+text='Save'
+css=#submit
+```
+
+Supported waits:
+
+```bash
+--wait-url <text>
+--wait-selector <selector>
+--wait-response <url-text>
+```
+
+Prefer deterministic waits such as URL changes, visible selectors, hidden spinners, or expected API responses. Do not use network-idle as the default success condition.
+
+## Console Diagnostics
+
+```bash
+{baseDir}/browser-console.js --duration 10000
+{baseDir}/browser-console.js --reload --json
+```
+
+Capture console messages and page errors from the active tab. Use this when UI behavior is unexpected or a page may have runtime errors.
+
+## Network Diagnostics
+
+```bash
+{baseDir}/browser-network.js --duration 10000
+{baseDir}/browser-network.js --reload --filter "/api/"
+{baseDir}/browser-network.js --errors-only --json
+```
+
+Capture network requests from the active tab. Use this to find failed requests, HTTP `4xx/5xx`, slow requests, and API calls triggered by UI actions.
+
 ## Screenshot
 
 ```bash
@@ -84,6 +157,10 @@ Navigate to a URL and extract readable content as markdown. Uses Mozilla Readabi
 
 - Testing frontend code in a real browser
 - Interacting with pages that require JavaScript
+- Inspecting DOM and accessibility information
+- Finding robust Playwright locators
+- Validating locators in a live page
+- Debugging console errors or failed network calls
 - When user needs to visually see or interact with a page
 - Debugging authentication or session issues
 - Scraping dynamic content that requires JS execution
@@ -94,7 +171,7 @@ Navigate to a URL and extract readable content as markdown. Uses Mozilla Readabi
 
 ### DOM Inspection Over Screenshots
 
-**Don't** take screenshots to see page state. **Do** parse the DOM directly:
+**Don't** take screenshots to understand page state. **Do** parse the DOM/accessibility tree directly:
 
 ```javascript
 // Get page structure
@@ -107,6 +184,25 @@ Array.from(document.querySelectorAll('button, input, [role="button"]')).map(e =>
   class: e.className
 }))
 ```
+
+Use screenshots for visual confirmation and communication, not as the primary inspection method.
+
+### Locator Discovery
+
+When helping write Playwright tests:
+
+1. Run `browser-locators.js` first.
+2. Prefer user-facing locators.
+3. Validate important locators with `browser-action.js` or direct Playwright if needed.
+4. Use CSS selectors only when no stable accessible locator exists.
+
+### Console and Network Debugging
+
+When an action behaves unexpectedly:
+
+1. Use `browser-console.js` to check runtime errors.
+2. Use `browser-network.js --filter "/api/"` to inspect backend calls.
+3. Use `browser-action.js` to repeat the action and collect diagnostics in one run.
 
 ### Complex Scripts in Single Calls
 
@@ -176,6 +272,8 @@ If DOM updates after actions, add a small delay with bash:
 ```bash
 sleep 0.5 && {baseDir}/browser-eval.js '...'
 ```
+
+For repeatable checks, prefer `browser-action.js` with `--wait-url`, `--wait-selector`, or `--wait-response`.
 
 ### Investigate Before Interacting
 
